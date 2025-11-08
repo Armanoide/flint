@@ -40,8 +40,9 @@ fn test_user_agent_launch_agents_dir_uses_home() -> anyhow::Result<()> {
 #[test]
 fn test_user_agent_find_and_new_success() -> anyhow::Result<()> {
     let (tmp, _) = setup_fake_home()?;
+
     unsafe {
-        std::env::set_var("HOME", tmp.path());
+        std::env::set_var("HOME", tmp.path().to_str().unwrap());
     }
 
     let agents = tmp.path().join("Library").join("LaunchAgents");
@@ -71,12 +72,6 @@ fn test_user_agent_new_missing_plist() -> anyhow::Result<()> {
     }
 
     let result = ServiceUserAgent::new("does.not.exist".into());
-    // print HOME and result for debugging
-    println!(
-        "HOME={}",
-        std::env::var("HOME").unwrap_or_else(|_| "UNKNOWN".into())
-    );
-    println!("UUUUUUUU===============> Result: {:?}", result);
     assert!(matches!(result, Err(Error::PlistNotFound { .. })));
     Ok(())
 }
